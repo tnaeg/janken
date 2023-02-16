@@ -1,0 +1,51 @@
+POST http://localhost:8000/api/games
+Content-Type: application/json
+
+{
+  "username": "Tester1",
+  "gamename": "test"
+}
+
+{%
+  local body = context.json_decode(context.result.body)
+  context.set_env("gameUUID", body.gameID)
+%}
+
+POST http://localhost:8000/api/games/{{gameUUID}}/join
+Content-Type: application/json
+
+{
+  "name": "Tester2"
+}
+
+POST http://localhost:8000/api/games/{{gameUUID}}/move
+Content-Type: application/json
+
+{
+  "name": "Tester2",
+  "move": "rock"
+}
+
+POST http://localhost:8000/api/games/{{gameUUID}}/move
+Content-Type: application/json
+
+{
+  "name": "Tester1",
+  "move": "lizard"
+}
+
+GET http://localhost:8000/api/games/{{gameUUID}}
+Content-Type: application/json
+
+{
+}
+
+GET http://localhost:8000/api/games/1
+
+POST http://localhost:8000/api/games
+Content-Type: application/json
+
+{
+  "username": "Tester1",
+  "gamename": "test",
+}
