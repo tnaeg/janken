@@ -5,7 +5,10 @@ const data = 'application/json';
 
 function validateRequest(request, validLength, validKeys) {
   if (Object.keys(request.body).length != validLength)
+  {
+    console.log(Object.keys(request.body).length);
     return false;
+  }
 
   let keySetValid = true;
   validKeys.forEach(key => {
@@ -37,6 +40,7 @@ function responseRequestFailed(error, response, statusCode) {
 
 function createGame(req, res, gameServer) {
   if (validateRequest(req, 2, ["gamename", "username"])) {
+    console.log("Valid");
     try {
       if (gameServer instanceof GameServer)
       {
@@ -48,7 +52,7 @@ function createGame(req, res, gameServer) {
     }
   }
   else {
-    responseRequestFailed(Error("Invalid username or gamename"), res);
+    responseRequestFailed(Error("Invalid username or gamename"), res, 404);
   }
 };
 

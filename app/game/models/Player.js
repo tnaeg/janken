@@ -14,7 +14,7 @@ const ResultEnum = {
 
 class Player {
   username = "";
-  move = MoveEnum.NOACTION;
+  move;
 
   #result;
   #done = false;
@@ -24,6 +24,8 @@ class Player {
       this.username = name;
     else
       throw new Error('Player: Constructor() -> invalid empty username');
+
+    this.move = MoveEnum.NOACTION;//new MoveEnum(-1);
   }
 
   setMove(moveName) {
@@ -49,50 +51,53 @@ class Player {
       throw new Error('Player has already moved');
   }
 
-  isDone()
-  {
+  isDone() {
     return this.#done;
   }
 
-  getResult()
-  {
+  getResult() {
     return this.#result;
   }
 
-  opponentMove(opponentMove) {
-    switch (this.move) {
-      case MoveEnum.ROCK:
-        {
-          if (opponentMove == MoveEnum.ROCK)
-            this.#result = ResultEnum.TIE;
-          else if (opponentMove == MoveEnum.PAPER)
-            this.#result = ResultEnum.LOOSER;
-          else
-            this.#result = ResultEnum.WINNER;
-        }
-        break;
-      case MoveEnum.PAPER:
-        {
-          if (opponentMove == MoveEnum.PAPER)
-            this.#result = ResultEnum.TIE;
-          else if (opponentMove == MoveEnum.ROCK)
-            this.#result = ResultEnum.WINNER;
-          else
-            this.#result = ResultEnum.LOOSER;
-        }
-        break;
-      case MoveEnum.SCISSORS:
-        {
-          if (opponentMove == MoveEnum.SCISSORS)
-            this.#result = ResultEnum.TIE;
-          else if (opponentMove == MoveEnum.PAPER)
-            this.#result = ResultEnum.WINNER;
-          else
-            this.#result = ResultEnum.LOOSER;
-        }
-        break;
-      default:
-        throw new Error('Player move invalid');
+  opponentMove(opponent) {
+    if (opponent instanceof Player)
+    {
+      let opponentMove = opponent.move;
+
+      switch (this.move) {
+        case MoveEnum.ROCK:
+          {
+            if (opponentMove == MoveEnum.ROCK)
+              this.#result = ResultEnum.TIE;
+            else if (opponentMove == MoveEnum.PAPER)
+              this.#result = ResultEnum.LOOSER;
+            else
+              this.#result = ResultEnum.WINNER;
+          }
+          break;
+        case MoveEnum.PAPER:
+          {
+            if (opponentMove == MoveEnum.PAPER)
+              this.#result = ResultEnum.TIE;
+            else if (opponentMove == MoveEnum.ROCK)
+              this.#result = ResultEnum.WINNER;
+            else
+              this.#result = ResultEnum.LOOSER;
+          }
+          break;
+        case MoveEnum.SCISSORS:
+          {
+            if (opponentMove == MoveEnum.SCISSORS)
+              this.#result = ResultEnum.TIE;
+            else if (opponentMove == MoveEnum.PAPER)
+              this.#result = ResultEnum.WINNER;
+            else
+              this.#result = ResultEnum.LOOSER;
+          }
+          break;
+        default:
+          throw new Error('Player move invalid');
+      }
     }
   }
 }
