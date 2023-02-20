@@ -3,31 +3,34 @@ import GameServer from "../game/GameServer.js";
 const contentType = 'Content-Type';
 const data = 'application/json';
 
-function validateRequest(request, validLength, validKeys) {
-  if (Object.keys(request.body).length != validLength)
-  {
-    console.log(Object.keys(request.body).length);
-    return false;
-  }
+function validateRequest(request, maxLength, validKeys) {
 
-  let keySetValid = true;
+  const bodyLength = Object.keys(request.body).length;
+
+  if (bodyLength > maxLength)
+    return false;
+
+  let validatedKeys = 0;
   validKeys.forEach(key => {
-    if (!request.body[key])
-      keySetValid = false;
+    if (key.startsWith('#')) //Optional key
+    {
+      if (request.body[key.substring(1)])
+        validatedKeys++;
+    }
+    else if (request.body[key])
+      validatedKeys++;
   });
 
-  return keySetValid;
+  return validatedKeys == bodyLength;
 }
 
-function validateParameters(request, key)
-{
+function validateParameters(request, key) {
   return request.params[key];
 }
 
 function responseSuccess(message, response, statusCode) {
   response.setHeader(contentType, data);
   response.statusCode = statusCode;
-
   if (message)
     response.end(JSON.stringify(message));
 }
@@ -35,15 +38,13 @@ function responseSuccess(message, response, statusCode) {
 function responseRequestFailed(error, response, statusCode) {
   response.setHeader(contentType, data);
   response.statusCode = statusCode;
-  response.end(error.message);
+  response.end(JSON.stringify(error.message));
 }
 
 function createGame(req, res, gameServer) {
-  if (validateRequest(req, 2, ["gamename", "username"])) {
-    console.log("Valid");
+  if (validateRequest(req, 2, ["#gamename", "username"])) {
     try {
-      if (gameServer instanceof GameServer)
-      {
+      if (gameServer instanceof GameServer) {
         let newGame = gameServer.addGame(req.body.gamename, req.body.username);
         responseSuccess(newGame, res, 201);
       }
@@ -58,8 +59,7 @@ function createGame(req, res, gameServer) {
 
 function joinGame(req, res, gameServer) {
   if (validateParameters(req, "id") &&
-      validateRequest(req, 1, ["name"]))
-  {
+    validateRequest(req, 1, ["name"])) {
     try {
       const gameStatus = gameServer.joinGame(req.params.id, req.body.name);
       responseSuccess(gameStatus, res, 200);
@@ -71,10 +71,8 @@ function joinGame(req, res, gameServer) {
     responseRequestFailed(Error("Invalid game id or username"), res, 404);
 }
 
-function getGame(req, res, gameServer)
-{
-  if (validateParameters(req, "id"))
-  {
+function getGame(req, res, gameServer) {
+  if (validateParameters(req, "id")) {
     try {
       const game = gameServer.getGame(req.params.id);
       responseSuccess(game.getGameState(), res, 200);
@@ -89,13 +87,14 @@ function getGame(req, res, gameServer)
 
 function playMove(req, res, gameServer) {
   if (validateParameters(req, "id") &&
-      validateRequest(req, 2, ["name", "move"]))
+    validateRequest(req, 2, ["name", "move"])) {
     try {
       gameServer.playMove(req.params.id, req.body.name, req.body.move);
-      responseSuccess(null, res, 204);
+      res.sendStatus(204);
     } catch (error) {
       responseRequestFailed(error, res, 400)
     }
+  }
   else
     responseRequestFailed(Error("Invalid id/name/move"), 406);
 
@@ -106,7 +105,9 @@ const _getGame = getGame;
 const _joinGame = joinGame;
 const _createGame = createGame;
 
-export { _playMove as playMove };
-export { _getGame as getGame };
-export { _createGame as createGame };
-export { _joinGame as joinGame };
+export {
+  _playMove as playMove,
+  _getGame as getGame,
+  _createGame as createGame,
+  _joinGame as joinGame
+};

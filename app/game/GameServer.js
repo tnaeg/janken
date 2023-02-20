@@ -18,15 +18,12 @@ class GameServer {
     return this.#gameController.joinGame(game, id);
   }
 
-  getActiveGames()
-  {
+  getActiveGames() {
     return this.#gameController.getActiveGames();
   }
 
   getGame(gameID) {
-    if (gameID || gameID != "") {
-      return this.#gameController.getGame(gameID);
-    }
+    return this.#gameController.getGame(gameID);
   }
 
   playMove(gameID, playerName, move) {

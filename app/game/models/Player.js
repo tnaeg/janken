@@ -1,3 +1,4 @@
+import { validateString } from './helpValidator.js';
 const MoveEnum = {
   ROCK: 0,
   PAPER: 1,
@@ -13,39 +14,50 @@ const ResultEnum = {
 
 
 class Player {
-  username = "";
+  username;
   move;
 
   #result;
   #done = false;
 
   constructor(name) {
-    if (name && name != "")
+    if (name != undefined && name != "" && validateString(name, /^[A-Za-z0-9]+$/)) {
       this.username = name;
-    else
-      throw new Error('Player: Constructor() -> invalid empty username');
+    }
+    else {
+      if (name == undefined) {
+        throw new Error('Player: Invalid call without name object');
+      }
+      else {
+        throw new Error('Player: Empty/Invalid username, no spaces and only letters and numbers');
+      }
+    }
 
-    this.move = MoveEnum.NOACTION;//new MoveEnum(-1);
+    this.move = MoveEnum.NOACTION;
   }
 
   setMove(moveName) {
+    if (!validateString(moveName, /^[A-Za-z]+$/) || moveName == undefined)
+      throw new Error('Player: Bad move, use only a single word and no spaces')
     if (!this.#done) {
       switch (moveName.toLowerCase()) {
         case "rock":
           this.move = MoveEnum.ROCK;
+          this.#done = true;
           break;
         case "paper":
           this.move = MoveEnum.PAPER;
+          this.#done = true;
           break;
-        case "sicssors":
+        case "scissors":
           this.move = MoveEnum.SCISSORS;
+          this.#done = true;
           break;
         default:
           this.move = MoveEnum.NOACTION;
           throw new Error(`Unrecognized move: ${moveName}`);
-      }
-      if (this.move != MoveEnum.NOACTION)
-        this.#done = true;
+      };
+
     }
     else
       throw new Error('Player has already moved');
@@ -60,8 +72,7 @@ class Player {
   }
 
   opponentMove(opponent) {
-    if (opponent instanceof Player)
-    {
+    if (opponent instanceof Player) {
       let opponentMove = opponent.move;
 
       switch (this.move) {
@@ -99,7 +110,11 @@ class Player {
           throw new Error('Player move invalid');
       }
     }
+    else
+      throw new Error("Not a valid player for this game");
   }
 }
 
 export default Player;
+
+export { MoveEnum, ResultEnum };
